@@ -7,8 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using YoutubeApiApplication.Interfaces.Repositories;
+using YoutubeApiApplication.Interfaces.UnitOfWorks;
 using YoutubeApiPersistance.Context;
 using YoutubeApiPersistance.Repositories;
+using YoutubeApiPersistance.UnitOfWorks;
 
 namespace YoutubeApiPersistance
 {
@@ -21,6 +23,8 @@ namespace YoutubeApiPersistance
 
             services.AddScoped(typeof(IReadRepository<>) , typeof(ReadRepository<>));
             services.AddScoped(typeof(IWriteRepository<>), typeof(WriteRepository<>));
+
+            services.AddScoped<IUnitOfWork , UnitOfWork>();
 
         }
     }

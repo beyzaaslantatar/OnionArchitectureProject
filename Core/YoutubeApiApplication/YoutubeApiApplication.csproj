@@ -21,8 +21,4 @@
     <ProjectReference Include="..\YoutubeApiDomain\YoutubeApiDomain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Products\Command\" />
-  </ItemGroup>
-
 </Project>

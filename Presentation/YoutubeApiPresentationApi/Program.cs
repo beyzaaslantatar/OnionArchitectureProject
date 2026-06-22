@@ -1,6 +1,7 @@
 using YoutubeApiPersistance;
 using YoutubeApiApplication;
 using YoutubeApi.Mapper;
+using YoutubeApiApplication.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.ConfigureExceptionHandlingMiddleware();
 
 app.UseAuthorization();
 

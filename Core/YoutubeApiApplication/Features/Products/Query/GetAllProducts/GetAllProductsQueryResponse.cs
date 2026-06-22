@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YoutubeApiApplication.DTOs;
 
 namespace YoutubeApiApplication.Features.Products.Query.GetAllProducts
 {
@@ -13,5 +14,6 @@ namespace YoutubeApiApplication.Features.Products.Query.GetAllProducts
         public decimal Price { get; set; }
         public decimal Discount { get; set; }
 
+        public BrandDto Brand { get; set; }
     }
 }

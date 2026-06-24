@@ -41,8 +41,7 @@ namespace YoutubeApiApplication.Exceptions
 
 			List<string> errors = new()
 			{
-				exception.Message,
-				exception.InnerException?.ToString()
+				$"Error Message: {exception.Message}"
 			};
 
 			return httpContext.Response.WriteAsync(new ExceptionModel

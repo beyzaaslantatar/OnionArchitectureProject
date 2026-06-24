@@ -7,8 +7,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using YoutubeApiApplication.Bases;
 using YoutubeApiApplication.Behaviours;
 using YoutubeApiApplication.Exceptions;
+using YoutubeApiApplication.Features.Products.Rules;
 
 namespace YoutubeApiApplication
 {
@@ -20,6 +22,8 @@ namespace YoutubeApiApplication
 
             services.AddTransient<ExceptionMiddleware>();
 
+            services.AddRulesFromAssemblyContaining(assembly, typeof(BaseRules));
+
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
 
             services.AddValidatorsFromAssembly(assembly);
@@ -27,5 +31,20 @@ namespace YoutubeApiApplication
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(FluentValidationBehaviour<,>));
         }
+
+        private static IServiceCollection AddRulesFromAssemblyContaining(
+            this IServiceCollection services,
+            Assembly assembly,
+            Type type)
+        {
+            var types = assembly.GetTypes().Where(t=> t.IsSubclassOf(type) && type != t).ToList();
+
+            foreach (var item in types)
+                services.AddTransient(item);
+
+            return services;
+        }
+
+
     }
 }

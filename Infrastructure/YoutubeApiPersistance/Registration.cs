@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using YoutubeApiApplication.Interfaces.Repositories;
 using YoutubeApiApplication.Interfaces.UnitOfWorks;
+using YoutubeApiDomain.Entities;
 using YoutubeApiPersistance.Context;
 using YoutubeApiPersistance.Repositories;
 using YoutubeApiPersistance.UnitOfWorks;
@@ -26,6 +27,17 @@ namespace YoutubeApiPersistance
 
             services.AddScoped<IUnitOfWork , UnitOfWork>();
 
+            services.AddIdentityCore<User>(opt =>
+            {
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.Password.RequiredLength = 2;
+                opt.Password.RequireLowercase = false;
+                opt.Password.RequireUppercase = false;
+                opt.Password.RequireDigit = false;
+                opt.SignIn.RequireConfirmedEmail = false;
+            })
+                .AddRoles<Role>()
+                .AddEntityFrameworkStores<AppDbContext>();
         }
     }
 }

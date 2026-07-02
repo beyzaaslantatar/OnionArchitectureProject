@@ -25,4 +25,9 @@
     <ProjectReference Include="..\YoutubeApiDomain\YoutubeApiDomain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Auth\Command\Login\" />
+    <Folder Include="Features\Auth\Queries\" />
+  </ItemGroup>
+
 </Project>

@@ -24,12 +24,20 @@ namespace YoutubeApiApplication
 
             services.AddRulesFromAssemblyContaining(assembly, typeof(BaseRules));
 
+            // 1. Önce MediatR ayağa kalkmalı
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));
 
             services.AddValidatorsFromAssembly(assembly);
             ValidatorOptions.Global.LanguageManager.Culture = new System.Globalization.CultureInfo("en-US");
 
+            // 2. Önce validasyonlar (kontrol) çalışsın
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(FluentValidationBehaviour<,>));
+
+            // 3. SONRA bizim cache temizleme süzgeci çalışsın
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(CacheRemovalBehaviour<,>));
+
+            // 4. En son varsa mevcut RedisCacheBehaviour çalışsın
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RedisCacheBehaviour<,>));
         }
 
         private static IServiceCollection AddRulesFromAssemblyContaining(

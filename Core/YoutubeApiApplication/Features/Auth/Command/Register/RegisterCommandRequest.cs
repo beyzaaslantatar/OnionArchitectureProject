@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace YoutubeApiApplication.Features.Auth.Command.Register
 {
-    public class RegisterCommandRequest : IRequest<Unit>
+    public class RegisterCommandRequest : IRequest<RegisterCommandResponse>
     {
         public string FullName { get; set; }
         public string Email { get; set; }

@@ -4,11 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YoutubeApiApplication.Interfaces.RedisCache;
 using YoutubeApiDomain.Entities;
 
 namespace YoutubeApiApplication.Features.Products.Command.CreateProduct
 {
-    public class CreateProductCommandRequest : IRequest<Unit>
+    public class CreateProductCommandRequest : IRequest<CreateProductCommandResponse> , ICacheRemoverCommand
     {
         public string Title { get; set; }
         public string Description { get; set; }
@@ -16,5 +17,7 @@ namespace YoutubeApiApplication.Features.Products.Command.CreateProduct
         public decimal Price { get; set; }
         public decimal Discount { get; set; }
         public IList<int> CategoryIds { get; set; }
+
+        public string CacheKey => "GetAllProducts";
     }
 }

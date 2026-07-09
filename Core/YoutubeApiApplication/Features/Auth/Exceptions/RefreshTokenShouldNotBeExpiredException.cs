@@ -6,5 +6,4 @@ namespace YoutubeApiApplication.Features.Auth.Exceptions
     {
         public RefreshTokenShouldNotBeExpiredException() : base("The session has expired. Please try to login again.") { }
     }
-
 }

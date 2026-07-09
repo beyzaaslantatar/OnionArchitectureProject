@@ -30,6 +30,7 @@ namespace YoutubeApiApplication.Features.Auth.Command.RefreshToken
             this.tokenService = tokenService;
         }
 
+        //Refresh token ile gidip yeni bir access token oluşturuyor. Aynı zamanda refresh token'ı da yeniliyor.
         public async Task<RefreshTokenCommandResponse> Handle(RefreshTokenCommandRequest request, CancellationToken cancellationToken)
         {
             ClaimsPrincipal? principal = tokenService.GetPrincipalFromExpiredToken(request.AccessToken);

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar-custom {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+        .main-card {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: none;
+        }
+
+        /* Sabit kolon genişlikleri: sayfa değiştirince kolonlar içeriğe göre kaymasın */
+        .product-table {
+            table-layout: fixed;
+            min-width: 1050px;
+            /* Zebra stili: tek satırlar hafif gri, hover'da mor tonu (navbar ile uyumlu) */
+            --bs-table-striped-bg: #f7f8fc;
+            --bs-table-striped-color: inherit;
+            --bs-table-hover-bg: rgba(102, 126, 234, 0.14);
+            --bs-table-hover-color: inherit;
+        }
+        .product-table th,
+        .product-table td {
+            vertical-align: middle;
+        }
+        /* Uzun metinler satırı büyütmesin, taşan kısım "..." ile kısalsın */
+        .cell-ellipsis {
+            display: inline-block;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        /* İşlem butonları */
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            line-height: 1;
+            border-radius: 8px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+        }
+        .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+        }
+        .btn-action svg {
+            flex-shrink: 0;
+        }
+        .btn-edit {
+            color: #5b4b9d;
+            background-color: #efeaff;
+            border: 1px solid #ddd3ff;
+        }
+        .btn-edit:hover {
+            color: #fff;
+            background-color: #5b4b9d;
+            border-color: #5b4b9d;
+        }
+        .btn-delete {
+            color: #c0392b;
+            background-color: #fdeceb;
+            border: 1px solid #f8d5d2;
+        }
+        .btn-delete:hover {
+            color: #fff;
+            background-color: #c0392b;
+            border-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark navbar-custom shadow-sm mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">🛒 Product Management</a>
+            <button id="logoutBtn" class="btn btn-outline-light btn-sm fw-bold">Log out</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card main-card p-4 bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold text-dark m-0">Product List</h4>
+                <!-- 💡 DÜZELTME: data-bs-toggle ve data-bs-target eklendi -->
+                <button class="btn btn-success btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                    + Add New Product
+                </button>
+            </div>
+
+            <div id="loadingSpinner" class="text-center my-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="text-muted small mt-2">Loading...</p>
+            </div>
+
+            <div id="dashboardError" class="alert alert-danger d-none" role="alert"></div>
+
+            <div class="table-responsive d-none" id="tableContainer">
+                <table class="table table-striped table-hover align-middle product-table">
+                    <colgroup>
+                        <col style="width: 22%">
+                        <col style="width: 14%">
+                        <col style="width: 24%">
+                        <col style="width: 11%">
+                        <col style="width: 11%">
+                        <col style="width: 18%">
+                    </colgroup>
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Brand</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Discount (%)</th>
+                            <th class="text-center">Operations</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Sayfalama: solda kayıt sayısı seçimi, sağda sayfa numaraları -->
+            <div class="d-none flex-wrap justify-content-between align-items-center gap-2 mt-3" id="paginationFooter">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="btn-group btn-group-sm" role="group" id="pageSizeGroup">
+                        <button type="button" class="btn btn-outline-primary" data-size="5">5</button>
+                        <button type="button" class="btn btn-outline-primary" data-size="10">10</button>
+                        <button type="button" class="btn btn-outline-primary active" data-size="15">15</button>
+                        <button type="button" class="btn btn-outline-primary" data-size="all">Tümü</button>
+                    </div>
+                    <span class="text-muted small" id="paginationInfo"></span>
+                </div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0" id="paginationList"></ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MODALLAR (SAYFANIN EN ALTINDA) ================= -->
+
+    <!-- 1. Yeni Ürün Ekleme Modalı -->
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Yeni Ürün Ekle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addProductForm">
+                        <div class="mb-3">
+                            <label for="addTitle" class="form-label fw-bold">Ürün Adı</label>
+                            <input type="text" class="form-control" id="addTitle" placeholder="Örn: Laptop" required>
+                        </div>
+
+                        <div class="mb-3">
+                        <label for="brandSelect" class="form-label text-secondary small fw-bold">Brand</label>
+                        <select class="form-select" id="brandSelect" required>
+                            <option value="">Loading brands...</option>
+                        </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="addDescription" class="form-label fw-bold">Açıklama</label>
+                            <textarea class="form-control" id="addDescription" rows="2" placeholder="Ürün açıklaması..."></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="addPrice" class="form-label fw-bold">Fiyat (TL)</label>
+                                <input type="number" step="0.01" class="form-control" id="addPrice" placeholder="0.00" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="addDiscount" class="form-label fw-bold">İndirim (%)</label>
+                                <input type="number" step="0.01" class="form-control" id="addDiscount" value="0">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold" onclick="saveNewProduct()">Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Ürün Güncelleme Modalı -->
+    <div class="modal fade" id="updateProductModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Ürün Düzenle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateProductForm">
+                        <input type="hidden" id="updateProductId">
+
+                        <div class="mb-3">
+                            <label for="updateTitle" class="form-label fw-bold">Ürün Adı</label>
+                            <input type="text" class="form-control" id="updateTitle" required>
+                        </div>
+
+                            <div class="mb-3">
+                            <label for="updateBrandId" class="form-label text-secondary small fw-bold">Brand</label>
+                            <select class="form-select" id="updateBrandId" required>
+                                <option value="">Select Brand...</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="updateDescription" class="form-label fw-bold">Açıklama</label>
+                            <textarea class="form-control" id="updateDescription" rows="2"></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="updatePrice" class="form-label fw-bold">Fiyat (TL)</label>
+                                <input type="number" step="0.01" class="form-control" id="updatePrice" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="updateDiscount" class="form-label fw-bold">İndirim (%)</label>
+                                <input type="number" step="0.01" class="form-control" id="updateDiscount" value="0">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">İptal</button>
+                    <button type="button" class="btn btn-warning btn-sm fw-bold" onclick="saveProductUpdate()">Güncelle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scriptler -->
+    <script src="./node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>
